@@ -1667,7 +1667,7 @@ static void dbs_refresh_callback(struct work_struct *work)
 	}
 
 	if (policy->cur < DBS_INPUT_EVENT_MIN_FREQ) {
-#if 0
+#if 1
 		pr_info("%s: set cpufreq to DBS_INPUT_EVENT_MIN_FREQ(%d) \
 			directly due to input events!\n", __func__, \
 			DBS_INPUT_EVENT_MIN_FREQ);
@@ -1691,6 +1691,7 @@ bail_acq_sema_failed:
 }
 
 static unsigned int enable_dbs_input_event = 1;
+
 static void dbs_input_event(struct input_handle *handle, unsigned int type,
 		unsigned int code, int value)
 {
@@ -1710,9 +1711,11 @@ static void dbs_input_event(struct input_handle *handle, unsigned int type,
 			sampling_rate_boosted = 1;
 		}
 
-		for_each_online_cpu(i) {
-			queue_work_on(i, input_wq, &per_cpu(dbs_refresh_work, i));
-		}
+		/* debug mesg */
+		//pr_info("screen touched!\n");
+
+		for_each_online_cpu(i)
+			queue_work_on(i, input_wq, &per_cpu(dbs_refresh_work, i).work);
 	}
 }
 
@@ -1720,6 +1723,7 @@ static void dbs_input_event(struct input_handle *handle, unsigned int type,
 static int input_dev_filter(const char *input_dev_name)
 {
 	if (strstr(input_dev_name, "touchscreen") ||
+		strstr(input_dev_name, "sec_touchscreen") ||
 		strstr(input_dev_name, "-keypad") ||
 		strstr(input_dev_name, "-nav") ||
 		strstr(input_dev_name, "-oj")) {
@@ -1758,6 +1762,7 @@ static int dbs_input_connect(struct input_handler *handler,
 	if (error)
 		goto err1;
 
+	pr_info("%s found and connected!\n", dev->name);
 	return 0;
 err1:
 	input_unregister_handle(handle);
