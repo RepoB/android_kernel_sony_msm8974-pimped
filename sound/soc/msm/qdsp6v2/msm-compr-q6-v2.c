@@ -177,7 +177,6 @@ static void compr_event_handler(uint32_t opcode,
 		 */
 		snd_pcm_stream_lock_irq(substream);
 		if (runtime->status->hw_ptr >= runtime->control->appl_ptr) {
-			pr_info("render stopped");
 			runtime->render_flag |= SNDRV_RENDER_STOPPED;
 			stop_playback = 1;
 		}
