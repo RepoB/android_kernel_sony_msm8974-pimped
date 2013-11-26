@@ -29,7 +29,7 @@
 #include <linux/workqueue.h>
 #include <linux/slab.h>
 
-#ifdef CONFIG_POWERSUSPEND
+#if 0
 #include <linux/powersuspend.h>
 #endif
 
@@ -77,7 +77,7 @@
 #define SUP_HIGH_SLOW_UP_DUR (5)
 #define SUP_FREQ_LEVEL (14)
 
-#ifdef CONFIG_POWERSUSPEND
+#if 0
 static unsigned long stored_sampling_rate;
 #endif
 
@@ -2308,7 +2308,7 @@ bail_acq_sema_failed:
 	return 0;
 }
 
-#ifdef CONFIG_POWERSUSPEND
+#if 0
 static void cpufreq_intellidemand_power_suspend(struct power_suspend *h)
 {
 	mutex_lock(&dbs_mutex);
@@ -2392,7 +2392,7 @@ static int __init cpufreq_gov_dbs_init(void)
 							 "dbs_sync/%d", i);
 	}
 
-#ifdef CONFIG_POWERSUSPEND
+#if 0
 	register_power_suspend(&cpufreq_intellidemand_power_suspend_info);
 #endif
 	return cpufreq_register_governor(&cpufreq_gov_intellidemand);
