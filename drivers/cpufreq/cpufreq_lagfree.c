@@ -617,20 +617,6 @@ struct cpufreq_governor cpufreq_gov_lagfree = {
 	.owner			= THIS_MODULE,
 };
 
-static void lagfree_early_suspend(struct early_suspend *handler) {
-	suspended = 1;
-}
-
-static void lagfree_late_resume(struct early_suspend *handler) {
-	suspended = 0;
-}
-
-static struct early_suspend lagfree_power_suspend = {
-	.suspend = lagfree_early_suspend,
-	.resume = lagfree_late_resume,
-	.level = EARLY_SUSPEND_LEVEL_DISABLE_FB + 1,
-};
-
 static int __init cpufreq_gov_dbs_init(void)
 {
 	register_early_suspend(&lagfree_power_suspend);
