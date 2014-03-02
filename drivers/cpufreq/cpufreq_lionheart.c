@@ -299,7 +299,7 @@ static struct attribute *dbs_attributes[] = {
 
 static struct attribute_group dbs_attr_group = {
 	.attrs = dbs_attributes,
-	.name = "Lionheart",
+	.name = "lionheart",
 };
 
 static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
