@@ -58,6 +58,9 @@
 #include "board-rdtags.h"
 #endif
 #include "board-8974-console.h"
+#ifdef CONFIG_KEXEC_HARDBOOT
+#include <linux/memblock.h>
+#endif
 
 static struct memtype_reserve msm8974_reserve_table[] __initdata = {
 	[MEMTYPE_SMI] = {
@@ -130,6 +133,27 @@ static struct platform_device lastlogs_device = {
 #if defined(CONFIG_RAMDUMP_TAGS) || defined(CONFIG_CRASH_LAST_LOGS)
 static void reserve_debug_memory(void)
 {
+#ifdef CONFIG_KEXEC_HARDBOOT
+	// Reserve space for hardboot page - just after ram_console,
+	// at the start of second memory bank
+	int ret;
+	phys_addr_t start;
+	struct membank* bank;
+
+	if (meminfo.nr_banks < 2) {
+		pr_err("%s: not enough membank\n", __func__);
+		return;
+	}
+
+	bank = &meminfo.bank[1];
+	start = bank->start + SZ_1M + MSM_PERSISTENT_RAM_SIZE;
+	ret = memblock_remove(start, SZ_1M);
+	if(!ret)
+		pr_info("Hardboot page reserved at 0x%X\n", start);
+	else
+		pr_err("Failed to reserve space for hardboot page at 0x%X!\n", start);
+#endif
+
 	struct membank *mb = &meminfo.bank[meminfo.nr_banks - 1];
 	unsigned long bank_end = mb->start + mb->size;
 	/*Base address for rdtags*/
