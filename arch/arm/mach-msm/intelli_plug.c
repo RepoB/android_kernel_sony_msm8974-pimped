@@ -123,7 +123,7 @@ static int mp_decision(void)
 	total_time += this_time;
 
 	rq_depth = rq_info.rq_avg;
-	//pr_info(" rq_deptch = %u", rq_depth);
+	/* pr_info(" rq_deptch = %u", rq_depth); */
 	nr_cpu_online = num_online_cpus();
 
 	if (nr_cpu_online) {
@@ -236,8 +236,9 @@ static void __cpuinit intelli_plug_work_fn(struct work_struct *work)
 		pr_info("nr_run_stat: %u\n", nr_run_stat);
 #endif
 		cpu_count = nr_run_stat;
-		// detect artificial loads or constant loads
-		// using msm rqstats
+		/* detect artificial loads or constant loads
+		 * using msm rqstats
+		 */
 		nr_cpus = num_online_cpus();
 		if (!eco_mode_active && (nr_cpus >= 1 && nr_cpus < 4)) {
 			decision = mp_decision();
@@ -346,15 +347,17 @@ static void intelli_plug_suspend(struct power_suspend *handler)
 	int i;
 	int num_of_active_cores = 4;
 
-	cancel_delayed_work_sync(&intelli_plug_work);
-
 	mutex_lock(&intelli_plug_mutex);
 	suspended = true;
 	mutex_unlock(&intelli_plug_mutex);
 
-	// put rest of the cores to sleep!
-	for (i = num_of_active_cores - 1; i > 0; i--) {
-		cpu_down(i);
+	if (intelli_plug_active == 1) {
+		flush_workqueue(intelliplug_wq);
+
+		/* put rest of the cores to sleep! */
+		for (i = num_of_active_cores - 1; i > 0; i--) {
+			cpu_down(i);
+		}
 	}
 }
 
@@ -369,18 +372,22 @@ static void __cpuinit intelli_plug_resume(struct power_suspend *handler)
 	suspended = false;
 	mutex_unlock(&intelli_plug_mutex);
 
-	/* wake up everyone */
-	if (eco_mode_active)
-		num_of_active_cores = 2;
-	else
-		num_of_active_cores = num_possible_cpus();
+	if (intelli_plug_active == 1) {
+		/* wake up everyone */
+		if (eco_mode_active)
+			num_of_active_cores = 2;
+		else if (strict_mode_active)
+			num_of_active_cores = 1;
+		else
+			num_of_active_cores = num_possible_cpus();
 
-	for (i = 1; i < num_of_active_cores; i++) {
-		cpu_up(i);
+		for (i = 1; i < num_of_active_cores; i++) {
+			cpu_up(i);
+		}
+
+		queue_delayed_work_on(0, intelliplug_wq, &intelli_plug_work,
+			msecs_to_jiffies(10));
 	}
-
-	queue_delayed_work_on(0, intelliplug_wq, &intelli_plug_work,
-		msecs_to_jiffies(10));
 }
 
 static struct power_suspend intelli_plug_power_suspend_driver = {
@@ -395,8 +402,10 @@ static void intelli_plug_input_event(struct input_handle *handle,
 #ifdef DEBUG_INTELLI_PLUG
 	pr_info("intelli_plug touched!\n");
 #endif
-	queue_delayed_work_on(0, intelliplug_wq, &intelli_plug_boost,
-		msecs_to_jiffies(10));
+	if (intelli_plug_active == 1) {
+		queue_delayed_work_on(0, intelliplug_wq, &intelli_plug_boost,
+			msecs_to_jiffies(10));
+	}
 }
 
 static int input_dev_filter(const char *input_dev_name)
@@ -472,12 +481,13 @@ int __init intelli_plug_init(void)
 {
 	int rc;
 
-	//pr_info("intelli_plug: scheduler delay is: %d\n", delay);
+	rc = input_register_handler(&intelli_plug_input_handler);
+
+	/* pr_info("intelli_plug: scheduler delay is: %d\n", delay); */
 	pr_info("intelli_plug: version %d.%d by faux123\n",
 		 INTELLI_PLUG_MAJOR_VERSION,
 		 INTELLI_PLUG_MINOR_VERSION);
 
-	rc = input_register_handler(&intelli_plug_input_handler);
 #ifdef CONFIG_POWERSUSPEND
 	register_power_suspend(&intelli_plug_power_suspend_driver);
 #endif
