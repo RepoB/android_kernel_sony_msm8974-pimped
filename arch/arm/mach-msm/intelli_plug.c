@@ -31,29 +31,32 @@
 #undef DEBUG_INTELLI_PLUG
 
 #define INTELLI_PLUG_MAJOR_VERSION	2
-#define INTELLI_PLUG_MINOR_VERSION	2
+#define INTELLI_PLUG_MINOR_VERSION	4
 
-#define DEF_SAMPLING_MS			(1000)
-#define BUSY_SAMPLING_MS		(500)
-
-#define DUAL_CORE_PERSISTENCE		7
-#define TRI_CORE_PERSISTENCE		5
-#define QUAD_CORE_PERSISTENCE		3
+#define DEF_SAMPLING_MS			(500)
+#define BUSY_SAMPLING_MS		(250)
 
 #define BUSY_PERSISTENCE		10
-
-#define RUN_QUEUE_THRESHOLD		38
+#define DUAL_CORE_PERSISTENCE		14
+#define TRI_CORE_PERSISTENCE		10
+#define QUAD_CORE_PERSISTENCE		6
 
 #define CPU_DOWN_FACTOR			2
+#define NR_FSHIFT			3
 
 static DEFINE_MUTEX(intelli_plug_mutex);
-
 static struct delayed_work intelli_plug_work;
 static struct delayed_work intelli_plug_boost;
 
 static struct workqueue_struct *intelliplug_wq;
 static struct workqueue_struct *intelliplug_boost_wq;
 
+static unsigned int sampling_time = 0;
+static unsigned int persist_count = 0;
+static unsigned int busy_persist_count = 0;
+static bool hotplug_suspended = false;
+
+/* HotPlug Driver controls */
 static unsigned int intelli_plug_active = 0;
 module_param(intelli_plug_active, uint, 0644);
 
@@ -63,16 +66,38 @@ module_param(eco_mode_active, uint, 0644);
 static unsigned int eco_cores_enabled = 2;
 module_param(eco_cores_enabled, uint, 0644);
 
-static unsigned int sampling_time = 0;
+static unsigned int strict_mode_active = 0;
+module_param(strict_mode_active, uint, 0644);
 
-static unsigned int persist_count = 0;
-static unsigned int busy_persist_count = 0;
+static unsigned int def_sampling_ms = DEF_SAMPLING_MS;
+module_param(def_sampling_ms, uint, 0644);
 
-static bool suspended = false;
+static unsigned int busy_sampling_ms = BUSY_SAMPLING_MS;
+module_param(busy_sampling_ms, uint, 0644);
 
-#define NR_FSHIFT	3
+static unsigned int dual_core_persistence = DUAL_CORE_PERSISTENCE;
+module_param(dual_core_persistence, uint, 0644);
+
+static unsigned int tri_core_persistence = TRI_CORE_PERSISTENCE;
+module_param(tri_core_persistence, uint, 0644);
+
+static unsigned int quad_core_persistence = QUAD_CORE_PERSISTENCE;
+module_param(quad_core_persistence, uint, 0644);
+
+static unsigned int busy_persistence = BUSY_PERSISTENCE;
+module_param(busy_persistence, uint, 0644);
+
+static unsigned int cpu_down_factor = CPU_DOWN_FACTOR;
+module_param(cpu_down_factor, uint, 0644);
+
+static unsigned int debug_intelli_plug = 0;
+module_param(debug_intelli_plug, uint, 0644);
+
 static unsigned int nr_fshift = NR_FSHIFT;
 module_param(nr_fshift, uint, 0644);
+
+static unsigned int nr_run_hysteresis = 4;  /* 0.5 thread */
+module_param(nr_run_hysteresis, uint, 0644);
 
 static unsigned int nr_run_thresholds_full[] = {
 /*	1,  2,  3,  4 - on-line cpus target */
@@ -93,9 +118,6 @@ static unsigned int nr_run_thresholds_eco_extreme[] = {
 /*	   1, - on-line cpus target */
 	UINT_MAX /* avg run threads *2 (e.g., 9 = 2.25 threads) */
 	};
-
-static unsigned int nr_run_hysteresis = 4;  /* 0.5 thread */
-module_param(nr_run_hysteresis, uint, 0644);
 
 static unsigned int nr_run_last;
 
@@ -262,14 +284,14 @@ static void __cpuinit intelli_plug_work_fn(struct work_struct *work)
 		/* it's busy.. lets help it a bit */
 		if (cpu_count > 2) {
 			if (busy_persist_count == 0) {
-				sampling_time = BUSY_SAMPLING_MS;
-				busy_persist_count = BUSY_PERSISTENCE;
+				sampling_time = busy_sampling_ms;
+				busy_persist_count = busy_persistence;
 			}
 		} else {
 			if (busy_persist_count > 0)
 				busy_persist_count--;
 			else
-				sampling_time = DEF_SAMPLING_MS;
+				sampling_time = def_sampling_ms;
 		}
 
 		if (!suspended) {
@@ -287,9 +309,10 @@ static void __cpuinit intelli_plug_work_fn(struct work_struct *work)
 #endif
 				break;
 			case 2:
-				persist_count = DUAL_CORE_PERSISTENCE;
+				persist_count = dual_core_persistence;
 				if (!decision)
-					persist_count = DUAL_CORE_PERSISTENCE / CPU_DOWN_FACTOR;
+					persist_count = dual_core_persistence /
+						cpu_down_factor;
 				if (nr_cpus < 2) {
 					for (i = 1; i < cpu_count; i++)
 						cpu_up(i);
@@ -302,9 +325,10 @@ static void __cpuinit intelli_plug_work_fn(struct work_struct *work)
 #endif
 				break;
 			case 3:
-				persist_count = TRI_CORE_PERSISTENCE;
+				persist_count = tri_core_persistence;
 				if (!decision)
-					persist_count = TRI_CORE_PERSISTENCE / CPU_DOWN_FACTOR;
+					persist_count = tri_core_persistence /
+						cpu_down_factor;
 				if (nr_cpus < 3) {
 					for (i = 1; i < cpu_count; i++)
 						cpu_up(i);
@@ -317,9 +341,10 @@ static void __cpuinit intelli_plug_work_fn(struct work_struct *work)
 #endif
 				break;
 			case 4:
-				persist_count = QUAD_CORE_PERSISTENCE;
+				persist_count = quad_core_persistence;
 				if (!decision)
-					persist_count = QUAD_CORE_PERSISTENCE / CPU_DOWN_FACTOR;
+					persist_count = quad_core_persistence /
+						cpu_down_factor;
 				if (nr_cpus < 4)
 					for (i = 1; i < cpu_count; i++)
 						cpu_up(i);
@@ -368,8 +393,8 @@ static void __cpuinit intelli_plug_resume(struct power_suspend *handler)
 
 	mutex_lock(&intelli_plug_mutex);
 	/* keep cores awake long enough for faster wake up */
-	persist_count = BUSY_PERSISTENCE;
-	suspended = false;
+	persist_count = busy_persistence;
+	hotplug_suspended = false;
 	mutex_unlock(&intelli_plug_mutex);
 
 	if (intelli_plug_active == 1) {
