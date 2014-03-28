@@ -1993,6 +1993,12 @@ config CPU_VDD_CONTROL
 	help
 	  Allows to set the voltage level for each frequency scaling steps from userspace through a sysfs interface.
 
+config CPU_OC
+	bool "allow 2.26 GHz max freq option"
+	default n
+	help
+	  Force the PVS bin speed selection to 1, allowing 2.26GHz maximum frequencies
+
 endif # CPU_FREQ_MSM
 
 config MSM_DEVFREQ_CPUBW
