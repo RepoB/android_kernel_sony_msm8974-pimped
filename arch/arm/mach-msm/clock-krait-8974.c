@@ -453,6 +453,10 @@ static void get_krait_bin_format_b(struct platform_device *pdev,
 		*pvs = (pte_efuse >> 27) & 0xF;
 		break;
 	}
+	
+#ifdef CONFIG_CPU_OC
+    *speed = 1;
+#endif
 
 	/* Check SPEED_BIN_BLOW_STATUS */
 	if (pte_efuse & BIT(3)) {
