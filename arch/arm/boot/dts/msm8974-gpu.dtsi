@@ -129,12 +129,6 @@
 				qcom,io-fraction = <100>;
 			};
 
-			qcom,gpu-pwrlevel@9 {
-				reg = <9>;
-				qcom,gpu-freq = <27000000>;
-				qcom,bus-freq = <0>;
-				qcom,io-fraction = <0>;
-			};
 		};
 
 		qcom,dcvs-core-info {
