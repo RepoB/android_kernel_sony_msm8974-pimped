@@ -34,6 +34,8 @@ THREADS="9"
 FS="ext4"
 DATE=`date +%Y%m%d_%H%M`
 
+set -e
+
 # Device selection
 if [ -z "$1" ]
   then
@@ -98,5 +100,5 @@ mv -f tmp-dir/placeholder.zip ${OUT_DIR_COMMON_BASE}/${PWD##*/}/target/product/$
 rm -rf tmp-dir
 cd kernel/sony/msm8974
 
-echo -n -e "${GREEN}Made flashable package:${RESET} ${YELLOW}Pimped-Kernel-${DATE}.zip${RESET}\n"
+echo -n -e "${GREEN}Made flashable package:${RESET} ${YELLOW}Pimped-Kernel-${DEVICE}-${FS}-${DATE}.zip${RESET}\n"
 
