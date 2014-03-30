@@ -1988,6 +1988,12 @@ config CPU_OC
 	default n
 	help
 	  Force the PVS bin speed selection to 1, allowing 2.26GHz maximum frequencies
+	 
+config CPU_VDD_CONTROL
+	bool "Expose voltage control to userspace"
+	default n
+	help
+	  Allows to set the voltage level for each frequency scaling steps from userspace through a sysfs interface.
 
 endif # CPU_FREQ_MSM
 
