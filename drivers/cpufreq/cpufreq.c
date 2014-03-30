@@ -456,6 +456,8 @@ static ssize_t store_##file_name					\
 	return ret ? ret : count;					\
 }
 
+store_one(scaling_min_freq, min);
+
 #ifdef CONFIG_SEC_PM
 
 /* Disable scaling_min_freq store */
