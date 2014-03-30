@@ -38,7 +38,10 @@
 #ifdef CONFIG_ARM
 #include <asm/mach-types.h>
 #endif
+
+#ifdef CONFIG_TOUCHSCREEN_DOUBLE_TAP_TO_WAKE
 #include <linux/lcd_notify.h>
+#endif
 
 #define SYNAPTICS_CLEARPAD_VENDOR		0x1
 #define SYNAPTICS_MAX_N_FINGERS			10
@@ -471,6 +474,7 @@ struct synaptics_clearpad {
 	const char *reset_cause;
 };
 
+#ifdef CONFIG_TOUCHSCREEN_DOUBLE_TAP_TO_WAKE
 #define DOUBLE_TAP_TO_WAKE_TIMEOUT 700
 bool lcd_on;
 
@@ -522,6 +526,7 @@ static int lcd_notifier_callback(struct notifier_block *this, unsigned long even
 
 	return 0;
 }
+#endif
 
 static void synaptics_funcarea_initialize(struct synaptics_clearpad *this);
 static void synaptics_clearpad_reset_power(struct synaptics_clearpad *this,
@@ -671,7 +676,11 @@ static int clearpad_flip_config_get(u8 module_id, u8 rev)
 
 static struct evgen_block *clearpad_evgen_block_get(u8 module_id, u8 rev)
 {
+#ifdef CONFIG_TOUCHSCREEN_DOUBLE_TAP_TO_WAKE
 	return evgen_blocks;
+#else
+	return NULL;
+#endif
 }
 
 static void synaptics_clearpad_set_irq(struct synaptics_clearpad *this,
@@ -2243,6 +2252,7 @@ static void synaptics_funcarea_up(struct synaptics_clearpad *this,
 		LOG_EVENT(this, "%s up\n", valid ? "pt" : "unused pt");
 		if (!valid)
 			break;
+#ifdef CONFIG_TOUCHSCREEN_DOUBLE_TAP_TO_WAKE
 		if (this->easy_wakeup_config.gesture_enable && !lcd_on) {
 			LOG_CHECK(this, "D2W: difference: %u", jiffies_to_msecs(this->ew_timeout) - jiffies_to_msecs(jiffies));
 			if (time_after(jiffies, this->ew_timeout)) {
@@ -2254,6 +2264,7 @@ static void synaptics_funcarea_up(struct synaptics_clearpad *this,
 				evgen_execute(this->input, this->evgen_blocks, "double_tap");
 			}
 		}
+#endif
 		input_mt_slot(idev, pointer->cur.id);
 		input_mt_report_slot_state(idev, pointer->cur.tool, false);
 		break;
@@ -4184,8 +4195,10 @@ static int __devinit clearpad_probe(struct platform_device *pdev)
 			this->pdata->easy_wakeup_config,
 			sizeof(this->easy_wakeup_config));
 
+#ifdef CONFIG_TOUCHSCREEN_DOUBLE_TAP_TO_WAKE
 	this->easy_wakeup_config.gesture_enable = true;
 	this->easy_wakeup_config.timeout_delay = DOUBLE_TAP_TO_WAKE_TIMEOUT;
+#endif
 
 #ifdef CONFIG_TOUCHSCREEN_CLEARPAD_RMI_DEV
 	if (!cdata->rmi_dev) {
@@ -4437,16 +4450,18 @@ static struct platform_driver clearpad_driver = {
 
 static int __init clearpad_init(void)
 {
+#ifdef CONFIG_TOUCHSCREEN_DOUBLE_TAP_TO_WAKE
 	d2w_lcd_notif.notifier_call = lcd_notifier_callback;
 	lcd_register_client(&d2w_lcd_notif);
-
+#endif
 	return platform_driver_register(&clearpad_driver);
 }
 
 static void __exit clearpad_exit(void)
 {
+#ifdef CONFIG_TOUCHSCREEN_DOUBLE_TAP_TO_WAKE
 	lcd_unregister_client(&d2w_lcd_notif);
-
+#endif
 	platform_driver_unregister(&clearpad_driver);
 }
 
