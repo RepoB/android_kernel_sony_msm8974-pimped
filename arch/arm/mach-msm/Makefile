@@ -447,6 +447,7 @@ obj-$(CONFIG_ALUCARD_HOTPLUG) += alucard_hotplug.o
 
 obj-$(CONFIG_WALL_CLK) += wallclk.o
 obj-$(CONFIG_WALL_CLK_SYSFS) += wallclk_sysfs.o
+obj-$(CONFIG_LCD_KCAL) += board_kcal.o kcal_ctrl.o
 obj-$(CONFIG_ARCH_RANDOM) += early_random.o
 obj-$(CONFIG_PERFMAP) += perfmap.o
 obj-$(CONFIG_RAMDUMP_TAGS) += board-rdtags.o
