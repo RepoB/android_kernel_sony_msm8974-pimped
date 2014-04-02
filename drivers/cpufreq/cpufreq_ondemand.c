@@ -154,9 +154,8 @@ static struct dbs_tuners {
 	.up_threshold_any_cpu_load = DEF_FREQUENCY_UP_THRESHOLD,
 	.ignore_nice = 0,
 	.powersave_bias = 0,
-	.sync_freq = DBS_SYNC_FREQ,
-	.optimal_freq = DBS_OPTIMAL_FREQ,
-	.enable_turbo_mode = 1,
+	.sync_freq = 0,
+	.optimal_freq = 0,
 	.input_boost = 0,
 };
 
