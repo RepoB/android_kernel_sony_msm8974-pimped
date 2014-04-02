@@ -118,17 +118,6 @@ static void do_input_boost_rem(struct work_struct *work)
 	cpufreq_update_policy(s->cpu);
 }
 
-static int boost_mig_sync_thread(void *data)
-{
-	struct cpu_sync *s = container_of(work, struct cpu_sync,
-						input_boost_rem.work);
-
-	pr_debug("Removing input boost for CPU%d\n", s->cpu);
-	s->input_boost_min = 0;
-	/* Force policy re-evaluation to trigger adjust notifier. */
-	cpufreq_update_policy(s->cpu);
-}
-
 static int boost_migration_should_run(unsigned int cpu)
 {
 	struct cpu_sync *s = &per_cpu(sync_info, cpu);
@@ -181,7 +170,7 @@ static void run_boost_migration(unsigned int cpu)
 	get_online_cpus();
 	if (cpu_online(dest_cpu)) {
 		cpufreq_update_policy(dest_cpu);
-		queue_delayed_work_on(s->cpu, cpu_boost_wq,
+		queue_delayed_work_on(dest_cpu, cpu_boost_wq,
 			&s->boost_rem, msecs_to_jiffies(boost_ms));
 	} else {
 		s->boost_min = 0;
@@ -241,6 +230,7 @@ static void do_input_boost(struct work_struct *work)
 			&i_sync_info->input_boost_rem,
 			msecs_to_jiffies(input_boost_ms));
 	}
+
 	put_online_cpus();
 }
 
@@ -353,8 +343,6 @@ static int cpu_boost_init(void)
 		spin_lock_init(&s->lock);
 		INIT_DELAYED_WORK(&s->boost_rem, do_boost_rem);
 		INIT_DELAYED_WORK(&s->input_boost_rem, do_input_boost_rem);
-		s->thread = kthread_run(boost_mig_sync_thread, (void *)cpu,
-					"boost_sync/%d", cpu);
 	}
 	atomic_notifier_chain_register(&migration_notifier_head,
 					&boost_migration_nb);
