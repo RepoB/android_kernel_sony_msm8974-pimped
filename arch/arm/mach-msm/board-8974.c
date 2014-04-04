@@ -60,6 +60,7 @@
 #include "board-8974-console.h"
 #ifdef CONFIG_KEXEC_HARDBOOT
 #include <linux/memblock.h>
+#endif
 #ifdef CONFIG_LCD_KCAL
 #include <mach/kcal.h>
 #include <linux/module.h>
