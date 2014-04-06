@@ -115,6 +115,12 @@
 			linux,remove-completely;
 			reg = <0xfa00000 0x500000>;
 		};
+
+		camera_mem: camera_region {
+			linux,reserve-contiguous-region;
+			reg = <0 0x6400000>;
+			label = "camera_mem";
+		};
 	};
 
 	soc: soc { };
