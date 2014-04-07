@@ -116,6 +116,7 @@ static const char *const mpeg_video_vidc_extradata[] = {
 	"Extradata input crop",
 	"Extradata digital zoom",
 	"Extradata aspect ratio",
+	"Extradata LTR",
 	"Extradata macroblock metadata",
 };
 
@@ -123,6 +124,14 @@ static const char *const perf_level[] = {
 	"Nominal",
 	"Performance",
 	"Turbo"
+};
+
+static const char *const intra_refresh_modes[] = {
+	"None",
+	"Cyclic",
+	"Adaptive",
+	"Cyclic Adaptive",
+	"Random"
 };
 
 enum msm_venc_ctrl_cluster {
@@ -546,6 +555,7 @@ static struct msm_vidc_ctrl msm_venc_ctrls[] = {
 		(1 << V4L2_CID_MPEG_VIDC_VIDEO_INTRA_REFRESH_CYCLIC_ADAPTIVE) |
 		(1 << V4L2_CID_MPEG_VIDC_VIDEO_INTRA_REFRESH_RANDOM)
 		),
+		.qmenu = intra_refresh_modes,
 		.cluster = MSM_VENC_CTRL_CLUSTER_INTRA_REFRESH,
 	},
 	{
@@ -2565,6 +2575,14 @@ int msm_venc_g_fmt(struct msm_vidc_inst *inst, struct v4l2_format *f)
 			"Invalid input, inst = %p, format = %p\n", inst, f);
 		return -EINVAL;
 	}
+
+	rc = msm_comm_try_get_bufreqs(inst);
+	if (rc) {
+		dprintk(VIDC_WARN, "Getting buffer requirements failed: %d\n",
+				rc);
+		return rc;
+	}
+
 	if (f->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
 		fmt = inst->fmts[CAPTURE_PORT];
 		height = inst->prop.height[CAPTURE_PORT];

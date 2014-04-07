@@ -1,6 +1,5 @@
-/**
- *
- * Copyright (c) 2011-2012, The Linux Foundation. All rights reserved.
+/*
+ * Copyright (c) 2013-2014, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -12,18 +11,6 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __MACH_ION_H_
-#define __MACH_ION_H_
+#include <linux/dma-mapping.h>
 
-enum ion_memory_types {
-	ION_EBI_TYPE,
-	ION_SMI_TYPE,
-};
-
-enum ion_permission_type {
-	IPT_TYPE_MM_CARVEOUT = 0,
-	IPT_TYPE_MFC_SHAREDMEM = 1,
-	IPT_TYPE_MDP_WRITEBACK = 2,
-};
-
-#endif
+extern struct dma_map_ops removed_dma_ops;
