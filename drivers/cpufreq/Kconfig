@@ -180,22 +180,22 @@ config CPU_FREQ_GOV_SMARTASSV2
 
 config SMARTASSV2_SLEEP_IDEAL_FREQ
 	int "The ideal frequency to use when awake."
-	default 768000
-	depends on CPU_FREQ_GOV_SMARTASSV2
-	help
-	  The "ideal" frequency to use when awake. The governor will ramp up faster
-	  towards the ideal frequency and slower after it has passed it. Similarly,
-	  lowering the frequency towards the ideal frequency is faster than below it.
-
-config SMARTASSV2_AWAKE_IDEAL_FREQ
-	int "The ideal frequency to use when suspended."
-	default 192000
+	default 729600
 	depends on CPU_FREQ_GOV_SMARTASSV2
 	help
 	  The "ideal" frequency to use when suspended.
 	  When set to 0, the governor will not track the suspended state (meaning
 	  that practically when sleep_ideal_freq==0 the awake_ideal_freq is used
 	  also when suspended).
+
+config SMARTASSV2_AWAKE_IDEAL_FREQ
+	int "The ideal frequency to use when suspended."
+	default 1958400
+	depends on CPU_FREQ_GOV_SMARTASSV2
+	help
+	 The "ideal" frequency to use when awake. The governor will ramp up faster
+	 towards the ideal frequency and slower after it has passed it. Similarly,
+	 lowering the frequency towards the ideal frequency is faster than below it. 
 
 config SMARTASSV2_RAMP_UP_STEP
 	int "Freqeuncy delta when ramping up above the ideal freqeuncy."
@@ -281,7 +281,7 @@ config CPU_FREQ_GOV_BADASS_2_PHASE
 
 config CPU_FREQ_GOV_BADASS_2_PHASE_FREQ
 	int "'2-phase' badass frequency"
-	default 918000
+	default 883200
 	depends on CPU_FREQ_GOV_BADASS
 	depends on CPU_FREQ_GOV_BADASS_2_PHASE
 
@@ -294,7 +294,7 @@ config CPU_FREQ_GOV_BADASS_3_PHASE
 
 config CPU_FREQ_GOV_BADASS_3_PHASE_FREQ
 	int "'3-phase' badass frequency"
-	default 1188000
+	default 1036800
 	depends on CPU_FREQ_GOV_BADASS
 	depends on CPU_FREQ_GOV_BADASS_2_PHASE
 	depends on CPU_FREQ_GOV_BADASS_3_PHASE
@@ -360,14 +360,14 @@ config LAGFREE_FREQ_STEP_DOWN
 
 config LAGFREE_FREQ_SLEEP_MAX
 	int "Max Sleep frequeny"
-	default 384000
+	default 300000
 	depends on CPU_FREQ_GOV_LAGFREE
 	help
 	  Max freqeuncy for screen off.
 
 config LAGFREE_FREQ_AWAKE_MIN
 	int "Min Awake frequeny"
-	default 384000
+	default 300000
 	depends on CPU_FREQ_GOV_LAGFREE
 	help
 	  Min freqeuncy for screen on.
