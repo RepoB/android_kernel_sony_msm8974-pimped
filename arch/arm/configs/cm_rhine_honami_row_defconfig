@@ -1,6 +1,7 @@
 #
 # Miscellaneous Features
 #
+CONFIG_LCD_KCAL=y
 CONFIG_SOUND_CONTROL_HAX_3_GPL=y
 
 #
