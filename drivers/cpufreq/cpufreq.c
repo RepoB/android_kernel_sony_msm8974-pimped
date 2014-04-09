@@ -417,17 +417,6 @@ show_one(scaling_min_freq, min);
 show_one(scaling_max_freq, max);
 show_one(scaling_min_freq_all_cpus, min);
 show_one(scaling_max_freq_all_cpus, max);
-
-static ssize_t show_cpuinfo_max_freq(struct cpufreq_policy *policy, char *buf)
-{
-	unsigned int newfreq = 0;
-	if (!strcmp(current->comm, "thermal-engine")) {
-		newfreq = max(policy->max, (unsigned int)2265600);
-		pr_info("[imoseyon] thermal-engine read maxfreq %d!\n", newfreq);
-	} else newfreq = policy->cpuinfo.max_freq;
-	return sprintf(buf, "%u\n", newfreq);
-}
-
 show_one(scaling_cur_freq, cur);
 show_one(cpu_utilization, util);
 

@@ -204,7 +204,12 @@ static DEFINE_MUTEX(dbs_mutex);
 
 static struct workqueue_struct *dbs_wq;
 
-static DEFINE_PER_CPU(struct work_struct, dbs_refresh_work);
+struct dbs_work_struct {
+	struct work_struct work;
+	unsigned int cpu;
+};
+
+static DEFINE_PER_CPU(struct dbs_work_struct, dbs_refresh_work);
 
 static struct dbs_tuners {
 	unsigned int sampling_rate;
@@ -1870,7 +1875,11 @@ static void dbs_refresh_callback(struct work_struct *work)
 {
 	struct cpufreq_policy *policy;
 	struct cpu_dbs_info_s *this_dbs_info;
-	unsigned int cpu = smp_processor_id();
+	struct dbs_work_struct *dbs_work;
+	unsigned int cpu;
+
+	dbs_work = container_of(work, struct dbs_work_struct, work);
+	cpu = dbs_work->cpu;
 
 	get_online_cpus();
 
@@ -2231,6 +2240,7 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 		}
 
 		mutex_unlock(&dbs_mutex);
+
 		break;
 
 	case CPUFREQ_GOV_LIMITS:
