@@ -158,7 +158,6 @@ config CPU_FREQ_DEFAULT_GOV_INTERACTIVEX2
     	  Use the CPUFreq governor 'interactiveX2' as default.
 
 config CPU_FREQ_DEFAULT_GOV_LAGFREE
-<<<<<<< HEAD
     bool "lagfree"
     select CPU_FREQ_GOV_LAGFREE
     help
