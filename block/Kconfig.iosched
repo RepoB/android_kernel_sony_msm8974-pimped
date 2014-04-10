@@ -66,6 +66,12 @@ config IOSCHED_FIOPS
 	  IOPS equally among all processes in the system. It's mainly for
 	  Flash based storage.
 
+config IOSCHED_VR
+	tristate "VR I/O Scheduler"
+	default y
+	---help---
+	  Adds the VR I/O Scheduler
+
 config CFQ_GROUP_IOSCHED
 	bool "CFQ Group Scheduling support"
 	depends on IOSCHED_CFQ && BLK_CGROUP
