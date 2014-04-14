@@ -38,6 +38,7 @@ CONFIG_MSM_CPU_FREQ_MIN=300000
 # I/O Features
 #
 CONFIG_DYNAMIC_FSYNC=y
+CONFIG_ASYNC_FSYNC=y
 
 #
 # Flash Friendly File System (F2FS)
