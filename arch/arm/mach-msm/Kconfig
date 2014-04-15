@@ -2022,6 +2022,13 @@ config CPU_OC
 	help
 	  Force the PVS bin speed selection to 1, allowing 2.26GHz maximum frequencies
 
+config OC_ULTIMATE
+	bool "allow 2.419 GHz max OC option"
+	depends on CPU_OC
+	default n
+	help
+	  Unlock the ultimate Overclock freq speed @ 2.419 GHz
+
 endif # CPU_FREQ_MSM
 
 config MSM_DEVFREQ_CPUBW
