@@ -6,6 +6,7 @@ CONFIG_LCD_KCAL=y
 
 ### CPU Overclocking
 CONFIG_CPU_OC=y
+CONFIG_CPU_OC_ULTIMATE=y
 
 ### Voltage Control
 CONFIG_CPU_VDD_CONTROL=y
