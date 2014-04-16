@@ -1,6 +1,7 @@
 #
 # Miscellaneous Features
 #
+CONFIG_PVS_CONTROL=y
 ### LCD Calibration
 CONFIG_LCD_KCAL=y
 

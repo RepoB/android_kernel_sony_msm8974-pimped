@@ -3225,3 +3225,11 @@ config MSM_MODEM_SUBSYSTEM_RESTART_MONITOR
 	  This option enables a module which can notify user-space
 	  applications of modem subsystem power up/down event via uevent.
 endif
+
+config PVS_CONTROL
+	bool "CPU PVS binning selection"
+	default n
+	help
+	  This option enables a module which can for the CPU's PVS binning,
+	  allowing to effectively choose the frequency/voltage table.
+	  
