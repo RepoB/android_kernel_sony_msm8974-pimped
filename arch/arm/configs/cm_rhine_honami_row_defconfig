@@ -4,6 +4,9 @@
 ### LCD Calibration
 CONFIG_LCD_KCAL=y
 
+### CPU Overclocking
+CONFIG_CPU_OC=y
+
 ### Voltage Control
 CONFIG_CPU_VDD_CONTROL=y
 
