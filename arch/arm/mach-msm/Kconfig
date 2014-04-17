@@ -2029,6 +2029,13 @@ config CPU_OC_ULTIMATE
 	help
 	  Unlock the ultimate Overclock freq speed @ 2.419 GHz
 
+config PVS_SPEED_CONTROL
+	bool "sysfs interface to force PVS speed bin"
+	depends on CPU_OC
+	default n
+	help
+	  sysfs interface to force PVS speed bin
+
 endif # CPU_FREQ_MSM
 
 config MSM_DEVFREQ_CPUBW
