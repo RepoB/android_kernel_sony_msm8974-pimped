@@ -1455,7 +1455,6 @@ void msm_isp_process_axi_irq(struct vfe_device *vfe_dev,
 		    if (done_buf && !rc)
 			    msm_isp_process_done_buf(vfe_dev,
 			    stream_info, done_buf, ts);
-		}
 	}
 	return;
 }
