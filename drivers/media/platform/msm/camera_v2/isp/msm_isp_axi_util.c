@@ -1429,12 +1429,20 @@ void msm_isp_process_axi_irq(struct vfe_device *vfe_dev,
 			if (stream_info->stream_type == BURST_STREAM)
 				stream_info->runtime_num_burst_capture--;
 
-			msm_isp_get_done_buf(vfe_dev, stream_info,
-						pingpong_status, &done_buf);
-			if (stream_info->stream_type == CONTINUOUS_STREAM ||
-				stream_info->runtime_num_burst_capture > 1) {
-				rc = msm_isp_cfg_ping_pong_address(vfe_dev,
-					stream_info, pingpong_status);
+				msm_isp_get_done_buf(vfe_dev, stream_info,
+							pingpong_status, &done_buf);
+				if (stream_info->stream_type == CONTINUOUS_STREAM ||
+					stream_info->runtime_num_burst_capture > 1) {
+					rc = msm_isp_cfg_ping_pong_address(vfe_dev,
+						stream_info, pingpong_status);
+				}
+				if (done_buf && !rc)
+					msm_isp_process_done_buf(vfe_dev,
+					stream_info, done_buf, ts);
+				if (done_buf && rc)
+					/* Propagate frame drop */
+					msm_isp_process_frame_drop(vfe_dev,
+					stream_info, ts);
 			}
 			if (done_buf && !rc)
 				msm_isp_process_done_buf(vfe_dev,
@@ -1447,7 +1455,6 @@ void msm_isp_process_axi_irq(struct vfe_device *vfe_dev,
 		    if (done_buf && !rc)
 			    msm_isp_process_done_buf(vfe_dev,
 			    stream_info, done_buf, ts);
-		}
 	}
 	return;
 }
