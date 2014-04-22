@@ -129,7 +129,7 @@ static int snd_compr_open(struct inode *inode, struct file *f)
 		kfree(data);
 	}
 
-	snd_card_unref(compr->card);
+	// snd_card_unref(compr->card);
 	return ret;
 }
 
