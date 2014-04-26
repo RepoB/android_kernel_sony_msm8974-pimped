@@ -44,10 +44,10 @@ static struct workqueue_struct *cpu_boost_wq;
 
 static struct work_struct input_boost_work;
 
-static unsigned int boost_ms;
+static unsigned int boost_ms = 30;
 module_param(boost_ms, uint, 0644);
 
-static unsigned int sync_threshold;
+static unsigned int sync_threshold = 1036800;
 module_param(sync_threshold, uint, 0644);
 
 static unsigned int input_boost_freq;
@@ -90,6 +90,9 @@ static int boost_adjust_notify(struct notifier_block *nb, unsigned long val, voi
 	pr_debug("CPU%u policy min before boost: %u kHz\n",
 		 cpu, policy->min);
 	pr_debug("CPU%u boost min: %u kHz\n", cpu, min);
+
+	if (policy->cur > min)
+		return NOTIFY_OK;
 
 	cpufreq_verify_within_limits(policy, min, UINT_MAX);
 
@@ -172,6 +175,17 @@ static void run_boost_migration(unsigned int cpu)
 
 	/* Force policy re-evaluation to trigger adjust notifier. */
 	get_online_cpus();
+	if (cpu_online(src_cpu))
+		/*
+		 * Send an unchanged policy update to the source
+		 * CPU. Even though the policy isn't changed from
+		 * its existing boosted or non-boosted state
+		 * notifying the source CPU will let the governor
+		 * know a boost happened on another CPU and that it
+		 * should re-evaluate the frequency at the next timer
+		 * event without interference from a min sample time.
+		 */
+		cpufreq_update_policy(src_cpu);
 	if (cpu_online(dest_cpu)) {
 		cpufreq_update_policy(dest_cpu);
 		queue_delayed_work_on(dest_cpu, cpu_boost_wq,
@@ -182,11 +196,30 @@ static void run_boost_migration(unsigned int cpu)
 	put_online_cpus();
 }
 
+static void cpuboost_set_prio(unsigned int policy, unsigned int prio)
+{
+	struct sched_param param = { .sched_priority = prio };
+
+	sched_setscheduler(current, policy, &param);
+}
+
+static void cpuboost_park(unsigned int cpu)
+{
+	cpuboost_set_prio(SCHED_NORMAL, 0);
+}
+
+static void cpuboost_unpark(unsigned int cpu)
+{
+	cpuboost_set_prio(SCHED_FIFO, MAX_RT_PRIO - 1);
+}
+
 static struct smp_hotplug_thread cpuboost_threads = {
 	.store		= &thread,
 	.thread_should_run = boost_migration_should_run,
 	.thread_fn	= run_boost_migration,
 	.thread_comm	= "boost_sync/%u",
+	.park		= cpuboost_park,
+	.unpark		= cpuboost_unpark,
 };
 
 static int boost_migration_notify(struct notifier_block *nb,
@@ -200,7 +233,7 @@ static int boost_migration_notify(struct notifier_block *nb,
 		return NOTIFY_OK;
 
 	if (load_based_syncs && ((mnd->load < 0) || (mnd->load > 100))) {
-		pr_err("cpu-boost:Invalid load: %d\n", mnd->load);
+		pr_debug("cpu-boost:Invalid load: %d\n", mnd->load);
 		return NOTIFY_OK;
 	}
 
@@ -208,6 +241,13 @@ static int boost_migration_notify(struct notifier_block *nb,
 		return NOTIFY_OK;
 
 	if (!boost_ms)
+		return NOTIFY_OK;
+
+	/* Avoid deadlock in try_to_wake_up() */
+	if (thread == current)
+		return NOTIFY_OK;
+
+	if (mnd->dest_cpu == mnd->src_cpu)
 		return NOTIFY_OK;
 
 	pr_debug("Migration: CPU%d --> CPU%d\n", mnd->src_cpu, mnd->dest_cpu);
@@ -247,6 +287,7 @@ static void do_input_boost(struct work_struct *work)
 			&i_sync_info->input_boost_rem,
 			msecs_to_jiffies(input_boost_ms));
 	}
+
 	put_online_cpus();
 }
 

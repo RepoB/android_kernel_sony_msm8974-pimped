@@ -19,6 +19,8 @@ struct msm_thermal_data {
 	uint32_t poll_ms;
 	int32_t limit_temp_degC;
 	int32_t temp_hysteresis_degC;
+	uint32_t freq_step;
+	uint32_t freq_control_mask;
 	uint32_t bootup_freq_step;
 	uint32_t bootup_freq_control_mask;
 	int32_t core_limit_temp_degC;
@@ -38,7 +40,7 @@ struct msm_thermal_data {
 	int32_t ocr_temp_hyst_degC;
 };
 
-#ifdef CONFIG_THERMAL_MONITOR
+#if defined(CONFIG_THERMAL_MONITOR) || defined(CONFIG_INTELLI_THERMAL)
 extern int msm_thermal_init(struct msm_thermal_data *pdata);
 extern int msm_thermal_device_init(void);
 extern int msm_thermal_set_frequency(uint32_t cpu, uint32_t freq,
