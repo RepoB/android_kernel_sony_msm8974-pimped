@@ -3,7 +3,7 @@
 #
 CONFIG_PVS_CONTROL=y
 ### LCD Calibration
-CONFIG_LCD_KCAL=n
+CONFIG_LCD_KCAL=y
 
 ### CPU Overclocking
 CONFIG_CPU_OC=y
