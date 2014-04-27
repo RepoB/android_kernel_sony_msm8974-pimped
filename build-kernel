@@ -76,8 +76,12 @@ fi
 
 
 # Use the right fstab depending on the file-system selection
-rm -f ../../../device/sony/rhine-common/rootdir/fstab.qcom
-cp -f ../../../device/sony/rhine-common/rootdir/fstab.qcom.${FS} ../../../device/sony/rhine-common/rootdir/fstab.qcom
+fstab="../../../device/sony/rhine-common/rootdir/fstab.qcom"
+if [ -e "$fstab.${FS}" ]
+then 
+  rm -f "$fstab"
+  cp -f "$fstab.${FS} $fstab"
+fi 
 
 # Build the kernel
 cd ../../../

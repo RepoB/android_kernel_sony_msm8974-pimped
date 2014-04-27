@@ -213,6 +213,11 @@
 		qcom,ion-heap@23 { /* OTHER PIL HEAP */
 			qcom,memory-fixed = <0x08900000 0x1e00000>;
 		};
+
+		/* Move PIL HEAP to avoid conflict with ADSP image */
+		qcom,ion-heap@23 { /* OTHER PIL HEAP */
+			qcom,memory-fixed = <0x08900000 0x1e00000>;
+		};
 	};
 
 	/delete-node/ ath_chip_reset;
