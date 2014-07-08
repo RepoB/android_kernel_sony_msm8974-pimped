@@ -1,4 +1,9 @@
 #
+# Unwind fix
+#
+CONFIG_ARM_UNWIND=y
+
+#
 # Build optimization level
 #
 CONFIG_CC_OPTIMIZE_DEFAULT=y
