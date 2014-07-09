@@ -202,6 +202,7 @@
 	qcom,ion {
 		compatible = "qcom,msm-ion";
 
+<<<<<<< HEAD
 		qcom,ion-heap@20 { /* CAMERA HEAP */
 			compatible = "qcom,msm-ion-reserve";
 			reg = <20>;
@@ -209,6 +210,8 @@
 			qcom,ion-heap-type = "DMA";
 		};
 
+=======
+>>>>>>> cb2387b4d7015b92da1767cdefc8780a02b2b3d8
 		/* Move PIL HEAP to avoid conflict with ADSP image */
 		qcom,ion-heap@23 { /* OTHER PIL HEAP */
 			qcom,memory-fixed = <0x08900000 0x1e00000>;

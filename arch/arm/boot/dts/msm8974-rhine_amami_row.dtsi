@@ -761,17 +761,6 @@
 		};
 	};
 
-	qcom,ion {
-		compatible = "qcom,msm-ion";
-
-		qcom,ion-heap@20 { /* CAMERA HEAP */
-			compatible = "qcom,msm-ion-reserve";
-			reg = <20>;
-			linux,contiguous-region = <&camera_mem>;
-			qcom,ion-heap-type = "DMA";
-		};
-	};
-
 	sound {
 		qcom,audio-routing =
 			"RX_BIAS", "MCLK",

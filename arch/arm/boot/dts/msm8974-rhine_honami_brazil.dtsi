@@ -762,17 +762,6 @@
 		};
 	};
 
-	qcom,ion {
-		compatible = "qcom,msm-ion";
-
-		qcom,ion-heap@20 { /* CAMERA HEAP */
-			compatible = "qcom,msm-ion-reserve";
-			reg = <20>;
-			linux,contiguous-region = <&camera_mem>;
-			qcom,ion-heap-type = "DMA";
-		};
-	};
-
 	isdbt_tuner: ej113 {
 		compatible = "sony,ej113";
 		interrupt-parent = <&msmgpio>;
