@@ -25,7 +25,9 @@
 #include <linux/slab.h>
 #include <linux/cpu.h>
 #include <linux/cpuquiet.h>
+#ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
+#endif
 #include <linux/rq_stats.h>
 
 static struct work_struct minmax_work;
