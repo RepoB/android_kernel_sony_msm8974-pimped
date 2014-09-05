@@ -456,12 +456,12 @@ static int balanced_start(void)
 
 	for (count = 0; table[count].frequency != CPUFREQ_TABLE_END; count++);
 
-#ifndef IDLE_TOP_FREQ
+#if !IDLE_TOP_FREQ
 	idle_top_freq = table[(count / 2) - 1].frequency;
 #else
 	idle_top_freq = IDLE_TOP_FREQ;
 #endif
-#ifndef IDLE_BOTTOM_FREQ
+#if !IDLE_BOTTOM_FREQ
 	idle_bottom_freq = table[(count / 2) - 2].frequency;
 #else
 	idle_bottom_freq =IDLE_BOTTOM_FREQ;
