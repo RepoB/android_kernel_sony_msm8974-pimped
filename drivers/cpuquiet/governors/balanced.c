@@ -37,6 +37,9 @@ extern unsigned int cpq_min_cpus(void);
 #define UP_DELAY_MS			70
 #define DOWN_DELAY_MS		500
 
+#define IDLE_TOP_FREQ           0  
+#define IDLE_BOTTOM_FREQ        268800
+
 typedef enum {
 	CPU_SPEED_BALANCED,
 	CPU_SPEED_BIASED,
@@ -453,8 +456,16 @@ static int balanced_start(void)
 
 	for (count = 0; table[count].frequency != CPUFREQ_TABLE_END; count++);
 
+#ifndef IDLE_TOP_FREQ
 	idle_top_freq = table[(count / 2) - 1].frequency;
+#else
+	idle_top_freq = IDLE_TOP_FREQ;
+#endif
+#ifndef IDLE_BOTTOM_FREQ
 	idle_bottom_freq = table[(count / 2) - 2].frequency;
+#else
+	idle_bottom_freq =IDLE_BOTTOM_FREQ;
+#endif
 
 	cpufreq_register_notifier(&balanced_cpufreq_nb,
 		CPUFREQ_TRANSITION_NOTIFIER);
