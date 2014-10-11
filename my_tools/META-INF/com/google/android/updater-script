@@ -1,0 +1,26 @@
+ui_print(" ");
+assert(getprop("ro.product.device") == "D5503" || getprop("ro.build.product") == "D5503" || 
+       getprop("ro.product.device") == "amami" || getprop("ro.build.product") == "amami" || abort("This package is for \"D5503,amami\" devices; this is a \"" + getprop("ro.product.device") + "\"."););
+ui_print("Welcome to Pimped Kernel The Full Version");
+ui_print("   Device: Xperia Z1 Compact aka Amami");
+ui_print(" ");
+ui_print("Copying tools & setting perms...");
+package_extract_dir("kernel", "/tmp");
+set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
+set_perm(0, 0, 0777, "/tmp/mkbootimg");
+set_perm(0, 0, 0777, "/tmp/unpackbootimg");
+ui_print(" ");
+ui_print("Flashing the Kernel...");
+run_program("/sbin/dd", "if=/dev/block/platform/msm_sdcc.1/by-name/boot", "of=/tmp/boot.img");
+run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
+run_program("/tmp/mkbootimg.sh");
+run_program("/sbin/dd", "if=/tmp/newboot.img", "of=/dev/block/platform/msm_sdcc.1/by-name/boot");
+ui_print(" ");
+ui_print("Extracting Kernel's modules...");
+run_program("/sbin/mount", "-t", "auto", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system"); 
+package_extract_dir("modules", "/system/lib/modules");
+set_perm_recursive(0, 0, 0755, 0644, "/system/lib/modules");
+unmount("/system");
+ui_print(" ");
+ui_print("All Done, Enjoy!!...");
+ui_print(" ");
