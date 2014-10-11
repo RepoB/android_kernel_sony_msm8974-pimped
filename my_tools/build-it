@@ -1,0 +1,34 @@
+### This script won't work for you unless you edit the toolchain directory to become as yours.
+### GCC 4.9x
+
+DATE=`date +%Y-%m-%d`
+GREEN="\\033[1;32m"
+RED="\\033[1;31m"
+RESET="\\e[0m"
+DEVICE="amami"
+
+cd ~/sources/pimpedkernel
+rm -rf toolchain arch/arm/boot/zImage-dtb arch/arm/mach-msm/smd_rpc_sym.c
+unzip -q ~/FreeWare/Android-Tools/toolchain4.9x.zip -d toolchain
+ARCH=arm CROSS_COMPILE=toolchain/bin/arm-eabi- make distclean
+export KBUILD_BUILD_USER=Androguide
+ARCH=arm CROSS_COMPILE=toolchain/bin/arm-eabi- make cm_rhine_${DEVICE}_row_defconfig
+ARCH=arm CROSS_COMPILE=toolchain/bin/arm-eabi- make -j16
+if [ -f arch/arm/boot/zImage ]
+then
+cd my_tools
+mv ../arch/arm/boot/zImage kernel
+./dtbTool -o kernel/dt.img -s 2048 -p ../scripts/dtc/ ../arch/arm/boot/
+mkdir modules
+find .. -name '*.ko' ! -name 'wlan.ko' -exec cp {} modules \;
+../toolchain/bin/arm-eabi-strip --strip-unneeded modules/*
+zip -r kernel META-INF modules kernel
+java -Xmx1024m -jar signapk.jar -w META-INF/com/android/otacert testkey.pk8 kernel.zip ~/Desktop/Light-Pimped-Kernel-${DATE}-${DEVICE}.zip
+rm -rf kernel.zip kernel/zImage kernel/dt.img modules
+cd ..
+ARCH=arm CROSS_COMPILE=toolchain/bin/arm-eabi- make distclean
+rm -rf arch/arm/boot/zImage-dtb arch/arm/mach-msm/smd_rpc_sym.c toolchain
+echo -e "\n\n${GREEN}DONE!\n\n\nPimpedKernel Build ${DATE} For ${DEVICE} Is Ready ^_^${RESET}\n\n"
+else 
+echo -e "\n\n${RED}Failed To build PimpedKernel For ${DEVICE}!!!!${RESET}\n\n"
+fi
