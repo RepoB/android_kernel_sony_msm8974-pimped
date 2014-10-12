@@ -20,7 +20,7 @@ cd my_tools
 mv ../arch/arm/boot/zImage kernel
 ./dtbTool -o kernel/dt.img -s 2048 -p ../scripts/dtc/ ../arch/arm/boot/
 mkdir modules
-find .. -name '*.ko' ! -name 'wlan.ko' -exec cp {} modules \;
+find .. -name '*.ko' -exec cp {} modules \;
 ../toolchain/bin/arm-eabi-strip --strip-unneeded modules/*
 zip -r kernel META-INF modules kernel
 java -Xmx1024m -jar signapk.jar -w META-INF/com/android/otacert testkey.pk8 kernel.zip ~/Desktop/Full-Pimped-Kernel-${DATE}-${DEVICE}.zip
