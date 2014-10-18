@@ -8,7 +8,7 @@ RESET="\\e[0m"
 DEVICE="amami"
 
 cd ~/sources/pimpedkernel
-rm -rf toolchain arch/arm/boot/zImage-dtb arch/arm/mach-msm/smd_rpc_sym.c
+rm -rf toolchain arch/arm/boot/zImage-dtb
 unzip -q ~/FreeWare/Android-Tools/toolchain4.9x.zip -d toolchain
 ARCH=arm CROSS_COMPILE=toolchain/bin/arm-eabi- make distclean
 export KBUILD_BUILD_USER=Androguide
@@ -27,7 +27,7 @@ java -Xmx1024m -jar signapk.jar -w META-INF/com/android/otacert testkey.pk8 kern
 rm -rf kernel.zip kernel/zImage kernel/dt.img modules
 cd ..
 ARCH=arm CROSS_COMPILE=toolchain/bin/arm-eabi- make distclean
-rm -rf arch/arm/boot/zImage-dtb arch/arm/mach-msm/smd_rpc_sym.c toolchain
+rm -rf toolchain arch/arm/boot/zImage-dtb
 echo -e "\n\n${GREEN}DONE!\n\n\nPimpedKernel Build ${DATE} For ${DEVICE} Is Ready ^_^${RESET}\n\n"
 else 
 echo -e "\n\n${RED}Failed To build PimpedKernel For ${DEVICE}!!!!${RESET}\n\n"
