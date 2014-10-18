@@ -11,7 +11,7 @@ cd ~/sources/pimpedkernel
 rm -rf toolchain arch/arm/boot/zImage-dtb
 unzip -q ~/FreeWare/Android-Tools/toolchain4.9x.zip -d toolchain
 ARCH=arm CROSS_COMPILE=toolchain/bin/arm-eabi- make distclean
-export KBUILD_BUILD_USER=Androguide
+export KBUILD_BUILD_USER=GreatDevs
 ARCH=arm CROSS_COMPILE=toolchain/bin/arm-eabi- make cm_rhine_${DEVICE}_row_defconfig
 ARCH=arm CROSS_COMPILE=toolchain/bin/arm-eabi- make -j16
 if [ -f arch/arm/boot/zImage ]
@@ -23,7 +23,7 @@ mkdir modules
 find .. -name '*.ko' -exec cp {} modules \;
 ../toolchain/bin/arm-eabi-strip --strip-unneeded modules/*
 zip -r kernel META-INF modules kernel
-java -Xmx1024m -jar signapk.jar -w META-INF/com/android/otacert testkey.pk8 kernel.zip ~/Desktop/Full-Pimped-Kernel-${DATE}-${DEVICE}.zip
+java -Xmx1024m -jar signapk.jar -w META-INF/com/android/otacert testkey.pk8 kernel.zip ~/Desktop/PimpedMosh-Kernel-${DATE}-${DEVICE}.zip
 rm -rf kernel.zip kernel/zImage kernel/dt.img modules
 cd ..
 ARCH=arm CROSS_COMPILE=toolchain/bin/arm-eabi- make distclean
