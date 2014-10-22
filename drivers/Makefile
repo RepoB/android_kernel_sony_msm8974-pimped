@@ -146,6 +146,9 @@ obj-$(CONFIG_CORESIGHT)		+= coresight/
 obj-$(CONFIG_BIF)		+= bif/
 obj-$(CONFIG_SENSORS)		+= sensors/
 
+# cpuquiet
+obj-$(CONFIG_CPUQUIET_FRAMEWORK)		+= cpuquiet/
+
 ifeq (1, $(shell if [ -d drivers/exfat ] ; then echo 1 ; fi))
 obj-y   += exfat/
 endif
